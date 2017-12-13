@@ -3,6 +3,7 @@
   use think\Controller;
   use think\Request;
   use think\Db;
+  use app\api\model\User;
   class Index extends Controller{
     //控制器初始化
     public function _initialize(){
@@ -19,9 +20,12 @@
       return 'aaa';
     }
     public function test2(){
+      $user = new User();
+      var_dump($user->get(1));
+//      echo ($user -> u());
 
-      $param = Request::instance()->param();
-      var_dump($param);
+//      $param = Request::instance()->param();
+//      var_dump($param);
     }
     public function request($id){
       $request = request();
