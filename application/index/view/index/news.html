@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>NAME</th>
+    </tr>
+    {volist name="data" id="value"}
+    <tr>
+      <td>{$value.id}</td>
+      <td>{$value.name}</td>
+    </tr>
+    {/volist}
+  </table>
+</body>
+</html>
