@@ -1,80 +1,113 @@
 <?php
-  namespace app\admin\controller;
+  namespace app\api\controller;
   use think\Controller;
   use think\Request;
   use think\Db;
-  class Study extends Controller{
-    //控制器初始化
-    public function _initialize(){
-      echo 'init'."<hr/>";
-    }
-    public function test(){
+  use think\Validate;
+  use app\api\model\Category;
+  use app\api\model\Node;
+  class Study extends Controller
+  {
 
-    }
-    public function a(){
-      return 'aaa';
-    }
-
-    public function request($id){
-      $request = request();
-      echo 'domain:'.$request->domain()."<hr/>";
-      echo 'domain:'.$request->baseFile()."<hr/>";
-      echo 'domain:'.$request->url()."<hr/>";
-      echo 'domain:'.$request->url(true)."<hr/>";
-      echo 'domain:'.$request->root()."<hr/>";
-      echo 'domain:'.$request->root(true)."<hr/>";
-      echo 'domain:'.$request->pathinfo()."<hr/>";
-      echo 'domain:'.$request->path()."<hr/>";
-      echo 'domain:'.$request->ext()."<hr/>";
-
-      echo $request->method()."<hr/>";
-      echo $request->type()."<hr/>";
-      echo $request->ip()."<hr/>";
-      echo var_export($request->isAjax(), true)."<hr/>";
-      dump($request->param());
-      echo "<hr/>";
-      echo input('get.id');
-      echo $request->param('id');
-      echo Request::instance()->get('id');
+    public function test()
+    {
+      echo 'test';
     }
 
-    public function mysql(){
-      $data = Db::table('shop')->where('cid',0)->find();
+    /**
+     * 添加分类
+     * Method post
+     * @param name
+     * @param pid
+     */
+    public function category_add()
+    {
+      $request = Request::instance();
+      $validate = new Validate(
+          [
+              'name|分类名称' => "require|max:12",
+              'pid|父id' => "require|number"
+          ]
+      );
+      $data = [
+          'name' => $request->param('name'),
+          'pid' => $request->param('pid'),
+          'created_time' => time()
+      ];
+      if (!$validate->check($data)) {
+        $result['code'] = 1;
+        $result['msg'] = $validate->getError();
+      } else {
+        $category = new Category();
+        $category->data($data);
+        if ($category->save()) {
+          $result['code'] = 0;
+          $result['msg'] = "发布成功";
+        } else {
+          $result['code'] = 1;
+          $result['msg'] = "发布失败";
+        }
+      }
+      echo json_encode($result);
+    }
+
+    /**
+     * 添加node
+     * Method post
+     * @param title
+     * @param content
+     */
+    public function node_add()
+    {
+      $request = Request::instance();
+      $validate = new Validate([
+          'title|标题' => "require|max:30",
+          'content|内容' => "require",
+          'content|分类' => "require"
+      ]);
+      $data = [
+          'title' => $request->param('title'),
+          'content' => $request->param('content'),
+          'cid' => $request->param('cid'),
+          'created_time' => time()
+      ];
+      if (!$validate->check($data)) {
+        $result['code'] = 1;
+        $result['msg'] = $validate->getError();
+        echo json_encode($result);
+      } else {
+        $node = new Node();
+        $node->data($data);
+        if ($node->save()) {
+          $result['code'] = 0;
+          $result['msg'] = "发布成功";
+        } else {
+          $result['code'] = 1;
+          $result['msg'] = "发布失败";
+        }
+        return json_encode($result);
+      }
+
+
+      /**
+       * 获取node列表
+       *
+       */
+
+
+    }
+
+    public function node_list(){
+      $node = new Node();
+      $dataAll = $node::all();
+      $data=[];
+      foreach($dataAll as $key => $item){
+        $data[]=[
+          'title' => $item->title,
+          'content' => $item->content
+        ];
+      }
+
       var_dump($data);
-      $shop = db('shop')->where('id',31)->find();
-      var_dump($shop);
-
-      echo '<hr/>';
-      $name = Db::table('shop')->where('id',31)->value('name');
-      echo $name;
-      echo '<hr/>';
-
-      $col = Db::table('shop')->where('id',31)->column('name','price');
-      var_dump($col);
-
-      //添加数据
-      $data = ['name'=>'朱哥哥','age'=>18];
-      $res = Db::table('tp5_test')->insert($data);
-      echo $res;
-      echo Db::table('tp5_test')->getLastInsID();
-      echo Db::table('tp5_test')->count();
-      echo Db::table('tp5_test')->max('id');
-//      $data = Db::query('select * from shop');
-//      $data = Db::query('select shop.*,category.name as cname from shop,category WHERE shop.cid=category.id');
-//      $data = Db::query('select shop.*,category.name as cname from shop LEFT JOIN category ON shop.cid=category.id');
-//      $data = Db::query('select shop.*,category.name as cname from shop LEFT JOIN category ON shop.cid=category.id');
-      $data = Db::table('shop')
-          ->join(['category'=>'cname'],'shop.cid=category.id','left')
-          ->select();
-//      var_dump($data);
-//      $data = Db::query('select a.*,b.name as cname from a,b WHERE a.cid=b.id');
-
-      $data=Db::table('a')
-          ->join('b','a.cid=b.id')
-          ->select();
-
-      var_dump($data);
-
     }
-
   }

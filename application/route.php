@@ -9,6 +9,11 @@ Route::rule("/",function(){
         'name'=>'朱哥哥'
     ]);
     $res = $admin->save();
+    if($res){
+      echo '插入成功';
+    }else{
+      echo '插入失败';
+    }
 });
 
 
